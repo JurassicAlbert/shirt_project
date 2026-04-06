@@ -1,0 +1,6 @@
+.env
+node_modules
+apps/web/.next
+playwright-report
+test-results
+apps/web/public/generated

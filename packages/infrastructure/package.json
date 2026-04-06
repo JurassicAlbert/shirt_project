@@ -1,0 +1,13 @@
+{
+  "name": "@shirt/infrastructure",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@shirt/application": "*",
+    "@shirt/contracts": "*",
+    "@shirt/domain": "*",
+    "sharp": "^0.34.5"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@shirt/jobs",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@shirt/infrastructure": "*",
+    "bullmq": "^5.34.5",
+    "ioredis": "^5.4.2"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "name": "shirt_project",
+  "version": "1.0.0",
+  "description": "AI-powered design-to-product eCommerce MVP monorepo",
+  "scripts": {
+    "dev": "dotenv -e .env -- npm run dev -w web",
+    "build": "dotenv -e .env -- npm run build -w web",
+    "start": "npm run start -w web",
+    "lint": "npm run lint -w web",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "prisma db seed",
+    "db:ping": "node scripts/db-ping.mjs",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:status": "docker compose ps",
+    "db:logs": "docker compose logs -f --tail=50 db",
+    "db:docker:ping": "docker compose exec -T db psql -U postgres -d shirt_project -c \"SELECT 1\"",
+    "workers": "dotenv -e .env -- tsx scripts/workers.ts",
+    "redis:ping": "docker compose exec -T redis redis-cli ping"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JurassicAlbert/shirt_project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/JurassicAlbert/shirt_project/issues"
+  },
+  "homepage": "https://github.com/JurassicAlbert/shirt_project#readme",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.9",
+    "@mui/material": "^7.3.9",
+    "@prisma/client": "^6.16.1",
+    "bcryptjs": "^3.0.2",
+    "jsonwebtoken": "^9.0.2",
+    "sharp": "^0.34.5",
+    "zod": "^4.1.8"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.53.2",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.5.0",
+    "dotenv": "^16.6.1",
+    "dotenv-cli": "^8.0.0",
+    "prisma": "^6.16.1",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}
