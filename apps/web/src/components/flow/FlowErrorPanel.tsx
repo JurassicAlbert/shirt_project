@@ -27,7 +27,7 @@ export function FlowErrorPanel({ message, onRetry, retryLabel }: Props) {
             {retryLabel ?? tc("retry")}
           </button>
         ) : null}
-        <Link href="/search" className="rounded-lg border border-red-300 bg-white px-4 py-2 text-xs font-semibold text-red-900">
+        <Link href="/support" className="rounded-lg border border-red-300 bg-white px-4 py-2 text-xs font-semibold text-red-900">
           {t("contactSupport")}
         </Link>
       </div>

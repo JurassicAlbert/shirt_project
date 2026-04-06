@@ -129,6 +129,7 @@ export default function CheckoutPage() {
             <p className="text-sm text-slate-600">Przelewy24 — {t("payBtn")}</p>
             <button
               type="button"
+              data-testid="checkout-pay-btn"
               onClick={pay}
               disabled={busy}
               className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white disabled:opacity-60"

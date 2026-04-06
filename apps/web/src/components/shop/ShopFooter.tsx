@@ -17,13 +17,13 @@ export async function ShopFooter() {
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{n("shop")}</p>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
-                <Link href="/search" className="hover:text-white">
+                <Link href="/shop" className="hover:text-white">
                   {n("shop")}
                 </Link>
               </li>
               <li>
-                <Link href="/products" className="hover:text-white">
-                  {n("products")}
+                <Link href="/blog" className="hover:text-white">
+                  {n("blog")}
                 </Link>
               </li>
               <li>
@@ -42,12 +42,12 @@ export async function ShopFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/login" className="hover:text-white">
+                <Link href="/auth/signin" className="hover:text-white">
                   {n("login")}
                 </Link>
               </li>
               <li>
-                <Link href="/register" className="hover:text-white">
+                <Link href="/auth/signup" className="hover:text-white">
                   {n("register")}
                 </Link>
               </li>

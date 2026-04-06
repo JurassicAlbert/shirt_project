@@ -510,3 +510,332 @@ Each row lists **sections → main components → purpose**.
 - **Checkout**: Fatal errors use `FlowErrorPanel` with retry; success path still shows redirect copy; toasts reinforce outcome.
 - **Consistency**: Order status labels come from shared `state.order` messages in both account and admin; job user copy uses `state.jobSimple`; navigation and CTAs reuse the same i18n namespaces.
 - **E2E**: `apps/web/e2e/coherence.spec.ts` covers generate → stages → preview image → cart → checkout, then admin jobs (row or empty state) and order dialog (timeline + next statuses).
+
+---
+
+## 50. Template audit (strict — source of truth)
+
+**Sources (mandatory):** [Solid demo](https://solid.demo.nextjstemplates.com/), [Solid repo](https://github.com/NextJSTemplates/solid-nextjs/), [Materio CRM demo](https://demos.themeselection.com/materio-mui-nextjs-admin-template-free/demo-1/en/dashboards/crm), [Materio free repo](https://github.com/themeselection/materio-mui-nextjs-admin-template-free).
+
+This section inventories what the **templates ship as first-class pages and layouts**, not what our product eventually needs for ecommerce. Extraction below follows the public Solid SaaS demo surface and the Materio **free** admin template scope (auth shell + CRM dashboard + account/error/maintenance), plus Solid’s documented top-level routes (home, blog, docs, support, auth, error).
+
+### 50.1 Solid (frontend) — pages (canonical)
+
+| # | Route (template) | Purpose |
+| --- | --- | --- |
+| 1 | `/` | Marketing home |
+| 2 | `/blog` | Blog grid listing |
+| 3 | `/blog/[slug]` or equivalent | Single post (often placeholder in template) |
+| 4 | `/docs` | Docs index / guide links |
+| 5 | `/support` | Support / contact placeholder |
+| 6 | `/auth/signin` | Sign in (magic link + password patterns, SSO affordances per demo) |
+| 7 | `/auth/signup` | Sign up (parallel structure to signin) |
+| 8 | `/auth/forgot-password` | Password recovery entry (if present in template tree; required by strict auth parity) |
+| 9 | Dedicated error / 404 | Branded not-found (path varies by template build; often `not-found` + error UI) |
+
+### 50.2 Solid — global chrome & navigation (canonical)
+
+- **Header:** Logo, primary nav (Home, Features, Blog, Docs, nested “Pages” / marketing links as in demo), auth CTAs (Sign in / Get started), mobile menu.
+- **Footer:** Multi-column links, legal/social, consistent with demo footer density.
+
+### 50.3 Solid — homepage sections (all must appear for 1:1 home parity)
+
+Per Solid SaaS demo structure: **Hero**; **feature list / value blocks**; **brand / logo bar**; **about** (copy + imagery); **features with tabs** (stats / counters / ratings); **integrations / tech grid**; **primary + secondary CTAs**; **FAQ** (accordion); **testimonials**; **pricing** (tables or cards); **newsletter or lead CTA**; **footer** (full demo footer). Any section present on the live demo counts as mandatory for strict compliance.
+
+### 50.4 Solid — auth UI structure (canonical)
+
+- **Tabs or equivalent:** “Magic link” vs “Password” (wording as in template).
+- **SSO buttons:** Google / GitHub (or whatever the demo shows), even if backend is stubbed later.
+- **Links:** Forgot password, switch to register, footer/legal links matching demo layout.
+
+### 50.5 Materio (admin) — pages (free template scope)
+
+| # | Route (template convention) | Purpose |
+| --- | --- | --- |
+| 1 | `/login` or `/admin/login` (as in template app routing) | Admin sign-in |
+| 2 | `/register` or `/admin/register` | Admin registration UI |
+| 3 | `/forgot-password` or `/admin/forgot-password` | Admin recovery |
+| 4 | `/dashboards/crm` (demo URL) → **app route equivalent** `…/dashboard` | CRM dashboard (KPI row, charts, tables) |
+| 5 | Account settings | Profile / account form shell |
+| 6 | Error / 404 (admin-styled) | Branded not found |
+| 7 | Maintenance | Maintenance page shell |
+| 8 | **Layout shell** | Vertical nav, app bar, content grid, theme as in Materio |
+
+*Note:* The free repo also includes many **UI showcase** routes (forms, cards, tables). Strict “every page in repo” compliance may require enumerating those routes from the template’s `app` or `pages` directory during implementation; the **minimum bar for CRM-style parity** is the auth trio + **CRM dashboard layout** + account settings + error + maintenance + shared admin layout.
+
+### 50.6 Materio — dashboard & table/card patterns (canonical)
+
+- **CRM dashboard:** KPI statistic cards, chart widgets, “recent orders” / table strips as shown in demo.
+- **Tables:** MUI `DataGrid` or table patterns in demo (sorting, density, card headers).
+- **Cards:** Elevated `Card` grids for KPIs and content.
+- **Layout:** Drawer + toolbar + responsive content area; dark/purple Materio theme tokens as in demo.
+
+---
+
+## 51. Gap analysis (template vs current project)
+
+**Convention:** Routes below are **logical paths** after any locale segment. Current app uses Next.js App Router with `[locale]` (`pl` default, `en` optional, `localePrefix: as-needed`), which is already a **structural deviation** from templates that are single-locale path roots.
+
+### 51.1 Global / cross-cutting
+
+| Item | Template expectation | Current | Exists? | Match? | Notes |
+| --- | --- | --- | --- | --- | --- |
+| Locale routing | Single-language URL roots in demos | `[locale]` + `as-needed` | YES (extra) | **NO** | Either nest all template paths under `/{locale}/…` explicitly or document as permanent deviation; strict audit marks as **NO** until paths mirror template literals **including** auth/admin segments as specified. |
+| Store styling | Solid-only Tailwind/components from template | Custom `ShopHeader` / `solid-*` utility classes, not vendored Solid sections | YES | **PARTIAL** | Homepage sections are a **subset** of Solid demo (no full FAQ/pricing/testimonials/integration grid parity per §50.3). |
+| Admin styling | Materio-only layout/components | MUI `ThemeProvider` + drawer; **not** vendored Materio CRM page composition | YES | **PARTIAL** | Single-page tab app vs separate routes (see below). |
+| Auth UI split | Solid auth pages + **separate** Materio admin auth | One pair `/login`, `/register` (store), same session for admin | YES | **NO** | **Hybrid auth shell** vs required split. |
+| Magic link + SSO | Solid signin/signup | Password-only API + forms | NO | **NO** | Missing tabs and SSO UI. |
+| Forgot password | `/auth/forgot-password` (+ admin counterpart) | Not implemented | NO | **NO** | — |
+| Blog | `/blog` | No route | NO | **NO** | — |
+| Docs | `/docs` | No route | NO | **NO** | — |
+| Support | `/support` | No route | NO | **NO** | — |
+| Branded 404 | Solid-style not-found | No dedicated `not-found` in `src/app` tree (observed) | NO | **NO** | Rely on default Next.js 404. |
+
+### 51.2 Storefront pages
+
+| Template route | Current route(s) | Exists? | Match? | Missing / wrong |
+| --- | --- | --- | --- | --- |
+| `/` (full Solid home) | `/` | YES | **PARTIAL** | Missing many Solid sections (§50.3); CTAs point to `/search` not `/shop`. |
+| `/auth/signin` | `/login` | YES | **NO** | Wrong path; no magic link tab; no SSO row; layout not Solid auth layout. |
+| `/auth/signup` | `/register` | YES | **NO** | Wrong path; same gaps as signin. |
+| `/auth/forgot-password` | — | NO | **NO** | Route + UI absent. |
+| `/blog` | — | NO | **NO** | — |
+| `/docs` | — | NO | **NO** | — |
+| `/support` | — | NO | **NO** | — |
+| `/shop` (ecommerce extension per your phase plan) | `/search`, `/products` | PARTIAL | **NO** | Wrong routes and split across two pages; filters differ from “shop” spec. |
+| `/product/[id]` | `/products/[id]` | YES | **NO** | Wrong path segment (`products` vs `product`). |
+| `/cart` | `/cart` | YES | **PARTIAL** | Path OK only if locale rules OK; styling not verified as Solid template cart (template has no cart — extension). |
+| `/checkout` | `/checkout` | YES | **PARTIAL** | Extension; not in Solid template. |
+| `/account` | `/account`, `/account/orders/[id]` | YES | **PARTIAL** | Extra nested route; template mapping treated as extension. |
+| `/create` | `/create` | YES | **PARTIAL** | Extension; not Solid template page. |
+
+### 51.3 Admin pages
+
+| Template expectation | Current | Exists? | Match? | Missing / wrong |
+| --- | --- | --- | --- | --- |
+| Dedicated `/admin/login` (Materio auth) | Uses same `/login` as store | NO | **NO** | Admin must not share Solid-styled auth page. |
+| `/admin/register` | — | NO | **NO** | — |
+| `/admin/forgot-password` | — | NO | **NO** | — |
+| `/admin/dashboard` | Tab `dashboard` inside `/admin` | PARTIAL | **NO** | Wrong structure: must be **route**, not tab state. |
+| `/admin/account-settings` | — | NO | **NO** | — |
+| `/admin/error` (or admin 404) | — | NO | **NO** | — |
+| `/admin/maintenance` | — | NO | **NO** | — |
+| `/admin/orders` | Tab `orders` on `/admin` | PARTIAL | **NO** | Must be route; today dialog-driven UI. |
+| `/admin/returns` | Tab `returns` | PARTIAL | **NO** | Same. |
+| `/admin/designs` or moderation surface | Tab `moderation` | PARTIAL | **NO** | Route naming + structure. |
+| `/admin/jobs` | Tab `jobs` | PARTIAL | **NO** | Same. |
+
+---
+
+## 52. Fix plan (non-negotiable — structural)
+
+**Rule:** No new ecommerce features until template routes and layouts match. Below is **what must change** in the codebase (execution is out of scope for this audit document).
+
+### 52.1 Routing & files
+
+1. **Introduce Solid-exact paths** under the App Router: `auth/signin`, `auth/signup`, `auth/forgot-password`, `blog`, `docs`, `support`, plus homepage that composes **all** §50.3 sections from Solid (vendored or copied components).
+2. **Remove or redirect** legacy paths (`/login`, `/register`) to template paths with **301/308** or Next `redirect` until external links migrate.
+3. **Replace** `/products` + `/search` split with **`/shop`** (and keep `/search` only if Solid template includes it — it does not; strict mode → use `/shop` only for listing).
+4. **Rename** `/products/[id]` → **`/product/[id]`** (singular) per spec.
+5. **Split admin** from single `admin/page.tsx` into **route segments**: `admin/login`, `admin/register`, `admin/forgot-password`, `admin/dashboard`, `admin/account-settings`, `admin/orders`, `admin/returns`, `admin/designs`, `admin/jobs`, `admin/error`, `admin/maintenance`, each using **Materio layout** only.
+6. **Middleware:** Protect admin API and **admin HTML routes** with admin session; store auth must not be the only gate for Materio pages once split.
+7. **`not-found.tsx`:** Solid-styled for store tree; Materio-styled for `admin` tree (or segment-specific).
+
+### 52.2 UI & component sourcing
+
+1. **Vendor Solid** (or copy upstream components) for header/footer/auth/blog/docs/support/home sections so markup and class structure match the template; **do not** approximate with a reduced marketing page.
+2. **Vendor Materio** CRM dashboard page and auth pages from the free template; replace custom KPI-only dashboard with demo-equivalent **charts + tables**.
+3. **Delete hybrid patterns:** Store header must not link to raw `/admin` without going through Materio shell; consider removing store nav “Admin” or replacing with “Seller login” → `/admin/login`.
+
+### 52.3 Auth
+
+1. Implement **Solid** auth pages with magic-link **UI** + password tab + SSO buttons (backend may stub until APIs exist).
+2. Implement **Materio** admin login/register/forgot **separate** from Solid; if single user store is required, share **session cookie only**, not **page components**.
+
+### 52.4 Localization
+
+1. All **new** template-aligned pages must draw strings from `next-intl` (or agreed i18n) with **Polish default** and **English** secondary; template English copy is the **source for EN keys**, Polish for PL.
+
+### 52.5 Remove / stop
+
+1. Stop expanding features on **non-template routes** until redirects and layout parity land.
+2. Remove tab-based admin feature switching once equivalent **routes** exist (or keep tabs only inside a page **if** template does so — Materio CRM does not use one-page tabs for orders vs dashboard).
+
+---
+
+## 53. Final structure (target routes)
+
+**Store (Solid base + ecommerce extensions):**
+
+- `/` — Home (all Solid sections)
+- `/blog`, `/blog/[slug]`
+- `/docs`
+- `/support`
+- `/auth/signin`, `/auth/signup`, `/auth/forgot-password`
+- `/shop` — Product listing + filters (ecommerce)
+- `/product/[id]` — Product detail (ecommerce)
+- `/cart`, `/checkout`, `/account`, `/account/orders/[id]` (ecommerce / account extensions)
+- `/create` — AI generator (extension)
+- Store `not-found` — Solid branded
+
+**Admin (Materio base + operations extensions):**
+
+- `/admin/login`, `/admin/register`, `/admin/forgot-password`
+- `/admin/dashboard` — CRM layout
+- `/admin/account-settings`
+- `/admin/orders`, `/admin/returns`, `/admin/designs`, `/admin/jobs` — operations
+- `/admin/error`, `/admin/maintenance`
+- Admin `not-found` — Materio branded
+
+**Locale:** If i18n is kept, prefix consistently, e.g. `/pl/auth/signin`, `/en/auth/signin`, and document deviation from English-only demo URLs.
+
+---
+
+## 54. Page section breakdown (template + extensions)
+
+For **template** pages, sections are **from the demos**. For **extension** pages, sections describe required UX blocks after template parity.
+
+| Page | Sections (template / extension) | Primary components (target) | Purpose |
+| --- | --- | --- | --- |
+| `/` | Hero; Features; Logos; About; Tabbed features+stats; Integrations; CTA band; FAQ; Testimonials; Pricing; Newsletter; Footer | Solid section components + header/footer | Marketing + funnel |
+| `/blog` | Grid of posts; optional sidebar; footer | `BlogCard` grid | Content marketing |
+| `/docs` | Index list of guides | Link list / doc cards | Help |
+| `/support` | Contact / support content | Info + optional form | Support |
+| `/auth/signin` | Header brand; Magic link tab; Password tab; SSO; forgot link; footer | Solid auth layout | Authentication |
+| `/auth/signup` | Parallel to signin | Solid auth layout | Registration |
+| `/auth/forgot-password` | Instructions + email field | Solid auth layout | Recovery |
+| `/shop` | Filters; product grid; pagination | Solid card grid + sidebar | Browse |
+| `/product/[id]` | Gallery; buy box; variants; VAT note; CTA | Solid detail layout | Purchase |
+| `/cart` | Line items; summary | Solid table/list + aside | Basket |
+| `/checkout` | Address; delivery; payment; summary | Solid form + summary | Pay |
+| `/account` | Orders; returns (tabs or sections) | Solid/Materio table or cards per chosen extension spec | Self-service |
+| `/create` | Prompt; examples; results grid; preview | Custom AI UI inside Solid **card** system | AI |
+| `/admin/login` | Materio auth card; remember me; links | Materio auth template | Admin gate |
+| `/admin/dashboard` | KPI row; charts; recent activity tables | Materio CRM components | Ops overview |
+| `/admin/orders` | Filters; data table; row actions | Materio table in layout | Fulfillment |
+| `/admin/returns` | Table; decision actions | Materio table | Returns |
+| `/admin/designs` | Grid/cards; approve/reject | Materio cards/table | Moderation |
+| `/admin/jobs` | Table; filters; retry/detail | Materio table | Queue health |
+
+---
+
+## 55. Template compliance check
+
+**Legend:** **1:1** = YES only if route, layout, and sections match the reference demo for that page. Extensions (`/shop`, `/product`, `/cart`, `/checkout`, `/account`, `/create`, admin operations) are **N/A** for Solid/Materio **template** parity until base template pages are YES.
+
+| Page | 1:1 with Solid? | 1:1 with Materio? | Notes |
+| --- | --- | --- | --- |
+| `/` | **NO** | N/A | Subset of Solid home sections only. |
+| `/blog` | **NO** | N/A | Missing. |
+| `/docs` | **NO** | N/A | Missing. |
+| `/support` | **NO** | N/A | Missing. |
+| `/auth/signin` | **NO** | N/A | Wrong route; wrong auth UI. |
+| `/auth/signup` | **NO** | N/A | Same. |
+| `/auth/forgot-password` | **NO** | N/A | Missing. |
+| Store 404 | **NO** | N/A | No branded `not-found`. |
+| `/shop` | N/A | N/A | Extension; wrong current routes (`/search`/`/products`). |
+| `/product/[id]` | N/A | N/A | Extension; current `/products/[id]`. |
+| `/cart`, `/checkout`, `/account`, `/create` | N/A | N/A | Extensions exist at roughly correct **conceptual** level; styling/structure not template-vendored. |
+| `/admin/login` | N/A | **NO** | Missing; shared `/login` used. |
+| `/admin/register` | N/A | **NO** | Missing. |
+| `/admin/forgot-password` | N/A | **NO** | Missing. |
+| `/admin/dashboard` | N/A | **NO** | Tab fragment only. |
+| `/admin/account-settings` | N/A | **NO** | Missing. |
+| `/admin/orders` | N/A | **NO** | Tab, not route. |
+| `/admin/returns` | N/A | **NO** | Tab. |
+| `/admin/designs` | N/A | **NO** | Tab (`moderation`). |
+| `/admin/jobs` | N/A | **NO** | Tab. |
+| `/admin/error`, `/admin/maintenance` | N/A | **NO** | Missing. |
+
+**Summary:** Under strict template enforcement rules, the current implementation is **NON-COMPLIANT**. Achieving **YES** on all template rows requires vendoring upstream layouts, realigning **every** route listed in §53, splitting auth UIs, and only then layering ecommerce/AI **on top** without deleting template sections.
+
+---
+
+## 56. Route migration (post-alignment)
+
+Permanent redirects in `apps/web/next.config.ts` preserve bookmarks and external links.
+
+| Old path | New path | Notes |
+| --- | --- | --- |
+| `/login`, `/en/login` | `/auth/signin`, `/en/auth/signin` | Store auth (Solid shell) |
+| `/register`, `/en/register` | `/auth/signup`, `/en/auth/signup` | Store registration |
+| `/products`, `/en/products` | `/shop`, `/en/shop` | Listing + filters |
+| `/products/:id`, `/en/products/:id` | `/product/:id`, `/en/product/:id` | Product detail |
+| `/search`, `/en/search` | `/shop`, `/en/shop` | Search merged into shop browse |
+
+**Unchanged (already correct or API-only):** `/cart`, `/checkout`, `/account`, `/account/orders/[id]`, `/create`; all `/api/*` routes unchanged. **New first-class routes:** `/blog`, `/blog/[slug]`, `/docs`, `/support`, `/auth/forgot-password`; admin: `/admin/login`, `/admin/register`, `/admin/forgot-password`, `/admin/dashboard`, `/admin/account-settings`, `/admin/orders`, `/admin/returns`, `/admin/designs`, `/admin/jobs`, `/admin/error`, `/admin/maintenance`. **`/admin`** root redirects to `/admin/dashboard` when authenticated layout applies; unauthenticated users use `/admin/login`.
+
+---
+
+## 57. Template replacement log
+
+| Area | Before | After |
+| --- | --- | --- |
+| Store auth | `/login`, `/register` pages in `(store)` | `/auth/signin`, `/auth/signup`, `/auth/forgot-password` with Solid-style card, magic-link vs password tabs, SSO row (UI-only) |
+| Browse | `/search` + `/products` | Single `/shop` client page; detail at `/product/[id]` |
+| Home | Partial marketing blocks | Expanded sections: integrations grid, FAQ (`<details>`), pricing cards, testimonials-style band; CTAs target `/shop` / product deep links |
+| Admin shell | Single `admin/page.tsx` with tab state | `AdminShell` + MUI drawer; each concern is its own **route** under `(panel)/` |
+| Admin auth | Same store login for admin | Dedicated Materio-styled `(auth)/login`, `register`, `forgot-password`, plus `error` and `maintenance` demo pages |
+| Dashboard | Tab fragment | `AdminDashboardClient`: KPI cards, Recharts line chart, recent orders table |
+| Not found | Generic | `not-found.tsx` under store (Solid copy) and `admin/not-found.tsx` (Materio `AdminNotFoundView`) |
+
+Ecommerce and AI flows were **reattached** to the new URLs via header/footer links, redirects, and internal `Link`/`fetch` paths; APIs (`/api/products`, `/api/search`, `/api/cart`, checkout, designs, admin moderation) unchanged at the contract level.
+
+---
+
+## 58. Admin restructure (tabs → routes)
+
+| Former tab / concern | Route | Client component |
+| --- | --- | --- |
+| Dashboard | `/admin/dashboard` | `AdminDashboardClient` |
+| Orders | `/admin/orders` | `AdminOrdersClient` |
+| Returns | `/admin/returns` | `AdminReturnsClient` |
+| Designs / moderation | `/admin/designs` | `AdminDesignsClient` |
+| Jobs | `/admin/jobs` | `AdminJobsClient` |
+| Account / settings | `/admin/account-settings` | `account-settings/page.tsx` (Materio-styled form stub) |
+
+**Removed:** central tab index state driving multiple panels in one page. **Navigation:** `AdminShell` uses `next-intl` `Link` entries per route; logout clears session and sends user to `/admin/login`. **Guard:** `(panel)/layout.tsx` uses `getSessionFromCookie()`; missing session → `/admin/login`; non-admin role → `/`.
+
+---
+
+## 59. Template compliance final check
+
+Locale-prefixed routes follow `/[locale]/…` (default `pl`, `en` supported). **Route correct?** = public path matches §53. **UI matches template?** = same *family* as Solid/Materio demos (sections/components present; not necessarily pixel-identical to upstream vendor packages).
+
+| Page | Route correct? | UI matches template? |
+| --- | --- | --- |
+| `/` | YES | PARTIAL — Solid-style sections present (hero, features, integrations, FAQ, pricing, testimonials); full demo parity would require vendoring upstream section components |
+| `/blog` | YES | PARTIAL — list + slug pages with shared store chrome |
+| `/blog/[slug]` | YES | PARTIAL |
+| `/docs` | YES | PARTIAL |
+| `/support` | YES | PARTIAL |
+| `/auth/signin` | YES | PARTIAL — tabs (magic link / password), SSO buttons disabled/stub |
+| `/auth/signup` | YES | PARTIAL |
+| `/auth/forgot-password` | YES | PARTIAL |
+| `/shop` | YES | PARTIAL — ecommerce extension inside Solid card language |
+| `/product/[id]` | YES | PARTIAL |
+| `/cart`, `/checkout`, `/account`, `/create` | YES | PARTIAL — features preserved; styling aligned gradually with Solid chrome |
+| Store `not-found` | YES | PARTIAL — Solid-toned copy/layout |
+| `/admin/login` | YES | PARTIAL — Materio-style auth card |
+| `/admin/register` | YES | PARTIAL |
+| `/admin/forgot-password` | YES | PARTIAL |
+| `/admin/dashboard` | YES | PARTIAL — KPI + charts + table |
+| `/admin/account-settings` | YES | PARTIAL |
+| `/admin/orders` | YES | PARTIAL |
+| `/admin/returns` | YES | PARTIAL |
+| `/admin/designs` | YES | PARTIAL |
+| `/admin/jobs` | YES | PARTIAL |
+| `/admin/error` | YES | PARTIAL |
+| `/admin/maintenance` | YES | PARTIAL |
+| Admin `not-found` | YES | PARTIAL — Materio-toned `AdminNotFoundView` |
+
+**Blockers resolved for architecture:** no tab-only admin navigation for primary ops; no store/admin shared auth **page** components; legacy store paths redirected. **Remaining gap for strict 1:1:** upstream demo assets/components not fully vendored — tracked as PARTIAL in the UI column above.
+
+### E2E validation notes
+
+- Playwright starts `npm run workers` only when `REDIS_URL` is set (`playwright.config.ts`); without Redis, the dev server still runs and route/navigation tests execute. The long `coherence.spec.ts` scenario is **skipped** unless `REDIS_URL` is set (preview pipeline needs workers).
+- `apps/web/e2e/auth-cookie.ts` injects `session_token` from **each** `Set-Cookie` header line; using a single joined header string breaks on `Expires=Wed, …` commas inside the value.
+- Flows that assert Polish UI copy navigate to explicit `/pl/…` paths so locale is not flipped by the header language toggle.
+- Checkout flow asserts `POST /api/checkout` returns HTTP 200 (reading `response.json()` after success can fail once the browser follows the Przelewy24 redirect and drops the CDP response body).
+
+---

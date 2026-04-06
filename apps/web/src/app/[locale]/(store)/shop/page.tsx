@@ -1,9 +1,9 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { ProductCardImage } from "@/components/shop/ProductCardImage";
 
 type Product = {
@@ -21,30 +21,46 @@ const minPrice = (p: Product) => {
   return Math.min(...v.map((x) => Number(x.grossPrice)));
 };
 
-function SearchInner() {
+function ShopInner() {
   const t = useTranslations("search");
   const tc = useTranslations("common");
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [query, setQuery] = useState("");
-  const [type, setType] = useState("all");
   const [sort, setSort] = useState("name_asc");
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<Product[]>([]);
 
-  useEffect(() => {
-    const urlType = searchParams.get("type");
-    if (urlType === "tshirt" || urlType === "hoodie" || urlType === "mug") setType(urlType);
+  const type = useMemo(() => {
+    const u = searchParams.get("type");
+    return u === "tshirt" || u === "hoodie" || u === "mug" ? u : "all";
   }, [searchParams]);
 
+  const setType = useCallback(
+    (v: string) => {
+      const u = new URLSearchParams(searchParams.toString());
+      if (v === "all") u.delete("type");
+      else u.set("type", v);
+      const q = u.toString();
+      router.replace(q ? `/shop?${q}` : "/shop");
+    },
+    [router, searchParams],
+  );
+
   useEffect(() => {
-    const run = async () => {
+    let cancelled = false;
+    void (async () => {
       setLoading(true);
       const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&sort=${encodeURIComponent(sort)}`);
       const json = (await res.json()) as { data?: { items?: Product[] } };
-      setItems(json.data?.items ?? []);
-      setLoading(false);
+      if (!cancelled) {
+        setItems(json.data?.items ?? []);
+        setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
     };
-    void run();
   }, [query, sort]);
 
   const filtered = useMemo(
@@ -110,7 +126,7 @@ function SearchInner() {
           ) : null}
           <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {filtered.map((item) => (
-              <Link key={item.id} href={`/products/${item.id}`} className="solid-card solid-card-hover block space-y-3 p-4">
+              <Link key={item.id} href={`/product/${item.id}`} className="solid-card solid-card-hover block space-y-3 p-4">
                 <ProductCardImage slug={item.slug} type={item.type} alt={item.name} />
                 <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{item.type}</p>
                 <h3 className="font-semibold">{item.name}</h3>
@@ -128,7 +144,7 @@ function SearchInner() {
   );
 }
 
-export default function SearchPage() {
+export default function ShopPage() {
   const tc = useTranslations("common");
   return (
     <Suspense
@@ -138,7 +154,7 @@ export default function SearchPage() {
         </div>
       }
     >
-      <SearchInner />
+      <ShopInner />
     </Suspense>
   );
 }

@@ -14,15 +14,21 @@ export async function ShopHeader() {
           <Link href="/" className="text-xl font-bold tracking-tight text-slate-900">
             Solid Shop
           </Link>
-          <nav className="hidden items-center gap-6 md:flex" aria-label="Main">
+          <nav className="hidden items-center gap-5 lg:flex" aria-label="Main">
             <Link href="/" className={linkClass}>
               {t("home")}
             </Link>
-            <Link href="/search" className={linkClass}>
+            <Link href="/shop" className={linkClass}>
               {t("shop")}
             </Link>
-            <Link href="/products" className={linkClass}>
-              {t("products")}
+            <Link href="/blog" className={linkClass}>
+              {t("blog")}
+            </Link>
+            <Link href="/docs" className={linkClass}>
+              {t("docs")}
+            </Link>
+            <Link href="/support" className={linkClass}>
+              {t("support")}
             </Link>
             <Link href="/create" className={linkClass}>
               {t("create")}
@@ -33,14 +39,14 @@ export async function ShopHeader() {
             <Link href="/account" className={linkClass}>
               {t("account")}
             </Link>
-            <Link href="/admin" className={linkClass}>
+            <Link href="/admin/login" className={linkClass}>
               {t("admin")}
             </Link>
-            <Link href="/login" className={linkClass}>
+            <Link href="/auth/signin" className={linkClass}>
               {t("login")}
             </Link>
             <Link
-              href="/register"
+              href="/auth/signup"
               className="rounded-full bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700"
             >
               {t("register")}
@@ -48,7 +54,7 @@ export async function ShopHeader() {
           </nav>
           <div className="flex shrink-0 items-center gap-3">
             <LanguageSwitcher />
-            <Link href="/cart" className="md:hidden rounded-full border border-slate-200 p-2 text-slate-700" aria-label={t("cart")}>
+            <Link href="/cart" className="lg:hidden rounded-full border border-slate-200 p-2 text-slate-700" aria-label={t("cart")}>
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>

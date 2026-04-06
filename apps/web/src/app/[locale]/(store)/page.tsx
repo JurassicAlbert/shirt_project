@@ -22,7 +22,7 @@ export default async function HomePage() {
             <p className="max-w-xl text-lg leading-relaxed text-slate-600">{t("heroSubtitle")}</p>
             <div className="flex flex-wrap gap-3">
               <Link
-                href="/search"
+                href="/shop"
                 data-testid="hero-cta-search"
                 className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-600/25 transition hover:bg-indigo-700"
               >
@@ -75,9 +75,9 @@ export default async function HomePage() {
         </h2>
         <div className="grid gap-6 md:grid-cols-3">
           {[
-            { href: "/search?type=tshirt", title: t("catTshirtTitle"), desc: t("catTshirtDesc"), img: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80" },
-            { href: "/search?type=hoodie", title: t("catHoodieTitle"), desc: t("catHoodieDesc"), img: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80" },
-            { href: "/search?type=mug", title: t("catMugTitle"), desc: t("catMugDesc"), img: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=800&q=80" },
+            { href: "/shop?type=tshirt", title: t("catTshirtTitle"), desc: t("catTshirtDesc"), img: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80" },
+            { href: "/shop?type=hoodie", title: t("catHoodieTitle"), desc: t("catHoodieDesc"), img: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80" },
+            { href: "/shop?type=mug", title: t("catMugTitle"), desc: t("catMugDesc"), img: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=800&q=80" },
           ].map((c) => (
             <Link key={c.href} href={c.href} className="solid-card group block overflow-hidden p-0">
               <div className="relative h-48 w-full">
@@ -97,13 +97,13 @@ export default async function HomePage() {
           <h2 id="trend-heading" className="text-2xl font-bold tracking-tight md:text-3xl">
             {t("trendingTitle")}
           </h2>
-          <Link href="/search" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700">
+          <Link href="/shop" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700">
             {tc("viewAll")}
           </Link>
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {trending.map((item) => (
-            <Link key={item.id} href={`/products/${item.id}`} className="solid-card block space-y-3 p-4 transition hover:shadow-md">
+            <Link key={item.id} href={`/product/${item.id}`} className="solid-card block space-y-3 p-4 transition hover:shadow-md">
               <ProductCardImage slug={item.slug} type={item.type} alt={item.name} />
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{item.type}</p>
               <h3 className="font-semibold leading-snug">{item.name}</h3>
@@ -130,6 +130,65 @@ export default async function HomePage() {
               <span className="text-5xl font-black text-indigo-100">{s.step}</span>
               <h3 className="mt-2 text-lg font-semibold">{s.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-slate-600">{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="solid-section space-y-8" aria-labelledby="int-heading">
+        <div className="space-y-2">
+          <h2 id="int-heading" className="text-2xl font-bold tracking-tight md:text-3xl">
+            {t("integrationsTitle")}
+          </h2>
+          <p className="max-w-2xl text-slate-600">{t("integrationsSubtitle")}</p>
+        </div>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+          {[t("intNext"), t("intTailwind"), t("intPrisma"), t("intRedis"), t("intStripe")].map((label) => (
+            <div key={label} className="solid-card flex items-center justify-center px-4 py-6 text-center text-sm font-semibold text-slate-800">
+              {label}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="solid-section space-y-6" aria-labelledby="faq-heading">
+        <h2 id="faq-heading" className="text-2xl font-bold tracking-tight md:text-3xl">
+          {t("faqTitle")}
+        </h2>
+        <div className="space-y-3">
+          {[
+            { q: t("faq1q"), a: t("faq1a") },
+            { q: t("faq2q"), a: t("faq2a") },
+            { q: t("faq3q"), a: t("faq3a") },
+            { q: t("faq4q"), a: t("faq4a") },
+          ].map((item, i) => (
+            <details key={i} className="solid-card group px-5 py-4">
+              <summary className="cursor-pointer text-sm font-semibold text-slate-900">{item.q}</summary>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <section className="solid-section space-y-8" aria-labelledby="price-heading">
+        <div className="space-y-2 text-center">
+          <h2 id="price-heading" className="text-2xl font-bold tracking-tight md:text-3xl">
+            {t("pricingTitle")}
+          </h2>
+          <p className="mx-auto max-w-2xl text-slate-600">{t("pricingSubtitle")}</p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-3">
+          {[
+            { title: t("priceStarter"), body: t("priceStarterDesc") },
+            { title: t("pricePro"), body: t("priceProDesc") },
+            { title: t("priceTeam"), body: t("priceTeamDesc") },
+          ].map((tier) => (
+            <div key={tier.title} className="solid-card flex flex-col space-y-3 p-8">
+              <h3 className="text-lg font-bold text-slate-900">{tier.title}</h3>
+              <p className="flex-1 text-sm leading-relaxed text-slate-600">{tier.body}</p>
+              <Link href="/shop" className="inline-flex justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white">
+                {t("ctaButton")}
+              </Link>
             </div>
           ))}
         </div>
@@ -170,7 +229,7 @@ export default async function HomePage() {
           <h2 className="text-2xl font-bold md:text-3xl">{t("ctaTitle")}</h2>
           <p className="mx-auto mt-3 max-w-xl text-indigo-100">{t("ctaSubtitle")}</p>
           <Link
-            href="/search"
+            href="/shop"
             className="mt-8 inline-flex rounded-xl bg-white px-8 py-3 text-sm font-semibold text-indigo-700 shadow-lg hover:bg-indigo-50"
           >
             {t("ctaButton")}

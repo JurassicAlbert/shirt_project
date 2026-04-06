@@ -171,7 +171,7 @@ export default function CreatePage() {
       <div className="space-y-2">
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{t("title")}</h1>
         <p className="text-sm text-slate-600">
-          <Link href="/products" className="font-semibold text-indigo-600">
+          <Link href="/shop" className="font-semibold text-indigo-600">
             {tc("back")}
           </Link>
         </p>
@@ -206,6 +206,7 @@ export default function CreatePage() {
         </div>
         <button
           type="button"
+          data-testid="create-generate-btn"
           onClick={generate}
           disabled={!prompt || isAiWorking}
           className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white disabled:opacity-60"

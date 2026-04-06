@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
@@ -10,7 +11,9 @@ import { toast } from "sonner";
 type Variant = { id: string; size: string; color: string; material: string; grossPrice: number };
 type Product = { id: string; name: string; slug: string; description?: string | null; type: string; variants: Variant[] };
 
-export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+export default function ProductPage() {
+  const routeParams = useParams();
+  const id = typeof routeParams?.id === "string" ? routeParams.id : "";
   const t = useTranslations("product");
   const tc = useTranslations("common");
   const tt = useTranslations("toast");
@@ -21,18 +24,28 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
-    const run = async () => {
-      const p = await params;
+    if (!id) {
+      setProduct(null);
+      setVariantId("");
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
       setLoading(true);
-      const res = await fetch(`/api/products/${p.id}`);
+      const res = await fetch(`/api/products/${id}`);
       const json = (await res.json()) as { data?: Product };
       const data = json.data ?? null;
-      setProduct(data);
-      setVariantId(data?.variants?.[0]?.id ?? "");
-      setLoading(false);
+      if (!cancelled) {
+        setProduct(data);
+        setVariantId(data?.variants?.[0]?.id ?? "");
+        setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
     };
-    void run();
-  }, [params]);
+  }, [id]);
 
   const selected = useMemo(
     () => product?.variants.find((v) => v.id === variantId) ?? product?.variants[0],
@@ -71,7 +84,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   if (!product) {
     return (
       <div className="solid-section py-16 text-sm text-slate-600">
-        <Link href="/search" className="font-semibold text-indigo-600">
+        <Link href="/shop" className="font-semibold text-indigo-600">
           {tc("back")}
         </Link>
       </div>
@@ -113,6 +126,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           <div className="flex flex-wrap gap-3">
             <button
               type="button"
+              data-testid="product-add-to-cart"
               onClick={addToCart}
               disabled={busy}
               className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm disabled:opacity-60"

@@ -60,7 +60,7 @@ export default function CartPage() {
                   <Link href="/" className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white">
                     {t("browseTrending")}
                   </Link>
-                  <Link href="/search" className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold">
+                  <Link href="/shop" className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold">
                     {t("browseShop")}
                   </Link>
                 </div>
